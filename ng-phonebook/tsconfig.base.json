@@ -10,11 +10,14 @@
     "experimentalDecorators": true,
     "moduleResolution": "node",
     "importHelpers": true,
-    "target": "es2015",
-    "module": "es2020",
-    "lib": [
-      "es2018",
-      "dom"
-    ]
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "target": "ES2022",
+    "module": "ES2022",
+    "lib": ["es2018", "dom"],
+    "strict": true
+  },
+  "angularCompilerOptions": {
+    "strictTemplates": true
   }
 }

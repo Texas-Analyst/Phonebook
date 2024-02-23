@@ -1,53 +1,58 @@
-import {HttpClient, HttpErrorResponse, HttpHeaders} from "@angular/common/http";
-import {throwError} from "rxjs";
-import {catchError} from "rxjs/operators";
-import {Injectable} from "@angular/core";
-import {Contact} from "../components/contact-list/contact";
+import {
+  HttpClient,
+  HttpErrorResponse,
+  HttpHeaders,
+} from "@angular/common/http";
+import { throwError } from "rxjs";
+import { catchError } from "rxjs/operators";
+import { Injectable } from "@angular/core";
+import { Contact } from "../components/contact-list/contact";
 
 const httpOptions = {
-    headers: new HttpHeaders({
-        'Content-Type': 'application/json'
-    })
+  headers: new HttpHeaders({
+    "Content-Type": "application/json",
+  }),
 };
 
-@Injectable()
+@Injectable({ providedIn: "root" })
 export class ContactService {
+  constructor(private http: HttpClient) {}
 
-    constructor(private http: HttpClient) {
+  serverUrl = "http://localhost:8080/api/contact";
+
+  private static handleError(error: HttpErrorResponse) {
+    if (error.error instanceof ErrorEvent) {
+      console.error("An error occurred:", error.error.message);
+    } else {
+      console.error(
+        `Backend returned code ${error.status}, ` + `body was: ${error.error}`
+      );
     }
+    return throwError("Something bad happened; please try again later.");
+  }
 
-    serverUrl = 'http://localhost:8080/api/contact';
+  postContact(contact: Contact) {
+    return this.http
+      .post<Contact>(this.serverUrl, contact, httpOptions)
+      .pipe(catchError(ContactService.handleError));
+  }
 
-    private static handleError(error: HttpErrorResponse) {
-        if (error.error instanceof ErrorEvent) {
-            console.error('An error occurred:', error.error.message);
-        } else {
-            console.error(
-                `Backend returned code ${error.status}, ` +
-                `body was: ${error.error}`);
-        }
-        return throwError(
-            'Something bad happened; please try again later.');
-    }
+  putContact(contact: Contact) {
+    return this.http
+      .put<Contact>(this.serverUrl + "/" + contact.id, contact, httpOptions)
+      .pipe(catchError(ContactService.handleError));
+  }
 
-    postContact(contact: Contact) {
-        return this.http.post<Contact>(this.serverUrl, contact, httpOptions)
-            .pipe(catchError(ContactService.handleError));
-    }
+  loadAll() {
+    console.log(`LOADALL is executing with serverUrl: `, this.serverUrl);
+    return this.http
+      .get<Contact[]>(this.serverUrl, httpOptions)
+      .pipe(catchError(ContactService.handleError));
+  }
 
-    putContact(contact: Contact) {
-        return this.http.put<Contact>(this.serverUrl + '/' + contact.id, contact, httpOptions)
-            .pipe(catchError(ContactService.handleError));
-    }
-
-    loadAll() {
-        return this.http.get<Contact[]>(this.serverUrl, httpOptions)
-            .pipe(catchError(ContactService.handleError));
-    }
-
-    getById(id) {
-        return this.http.get<Contact>(this.serverUrl + '/' + id, httpOptions)
-            .pipe(catchError(ContactService.handleError));
-    }
-
+  getById(id: number) {
+    return this.http
+      .get<Contact>(this.serverUrl + "/" + id, httpOptions)
+      .pipe(catchError(ContactService.handleError));
+  }
 }
